@@ -1,0 +1,102 @@
+<!--<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">-->
+
+    <!-- The main content view -->
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <!-- Add content here -->
+        <LinearLayout
+            android:id="@+id/cn"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:elevation="5dp"
+            android:background="@color/darkcolor"
+            android:weightSum="100">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_error_red_48dp"
+                android:layout_weight="44"
+                android:layout_gravity="center_vertical"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="La connexion a échoué"
+                android:textSize="15sp"
+                android:layout_weight="33"
+                android:layout_gravity="center_vertical"/>
+            <Button
+                android:id="@+id/refresh"
+                android:layout_width="33dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_autorenew_white_48dp"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+        <!--<TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Les endroits les mieux notés dans un rayon de 10 km"
+            android:textSize="15dp"
+            android:padding="5dp"
+            android:textAlignment="gravity"
+            android:textStyle="bold"/>-->
+
+    //Code pour le Swipe To Refresh
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="40dp"
+            android:background="@color/background_material_dark">
+
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+        <!--<com.melnykov.fab.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="20dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/ic_place_white_48dp"
+            android:background="@color/textcolor"
+            fab:fab_colorNormal="@color/textcolor"
+            fab:fab_type="normal"
+            fab:fab_shadow = "true"/>-->
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_place_white_48dp" />
+    </FrameLayout>
+
+    <!-- The navigation drawer -->
+    <!--<ListView android:id="@+id/left_drawer"
+        android:layout_width="260dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="#e5e5e5"
+        android:dividerHeight="1dp"
+        android:background="@color/darkcolor"
+        android:elevation="5dp"/>
+</android.support.v4.widget.DrawerLayout>-->

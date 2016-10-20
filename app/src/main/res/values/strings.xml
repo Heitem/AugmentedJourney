@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Augmented Journey</string>
+
+    <!--<string name="title_section1">Accueil</string>
+    <string name="title_section2">Places à proximité</string>
+    <string name="title_section3">A propos</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>-->
+
+    <string name="about">À Propos</string>
+
+    <string name="search_title">Recherche</string>
+    <string name="search_hint">Entrez le nom ou l\'adresse d\'un endroit</string>
+    <string name="GPSAlertDialogTitle">Settings</string>
+    <string name="GPSAlertDialogMessage">These are settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="google_app_id">AIzaSyAg4vmpzmWqxkKGnecJYAxOIUZlvN9esV4</string>
+
+    <string-array name="nav_drawer_items">
+        <item>Places à proximité</item>
+        <!--<item>Fourth</item>
+        <item>Fifth</item>
+        <item>Sixth</item>-->
+    </string-array>
+
+    <!--<array name="nav_drawer_icons">
+        <item>@mipmap/ic_launcher</item>
+        &lt;!&ndash;
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        <item>@drawable/ic_launcher</item>
+        &ndash;&gt;
+    </array>-->
+    <string name="title_activity_about">À Propos</string>
+
+    <string name="hello_world">Hello world!</string>
+</resources>
