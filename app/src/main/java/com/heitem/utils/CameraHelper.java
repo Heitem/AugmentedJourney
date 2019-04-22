@@ -1,4 +1,4 @@
-package com.heitem.util;
+package com.heitem.utils;
 
 import android.hardware.Camera;
 

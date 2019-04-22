@@ -6,12 +6,12 @@
     <item android:id="@+id/about"
         android:title="@string/about"
         android:orderInCategory="100"
-        android:showAsAction="never"
-        android:icon="@drawable/ic_info_white_48dp"/>
+        android:icon="@drawable/ic_info_white_48dp"
+        app:showAsAction="never" />
 
     <item android:id="@+id/search"
         android:title="@string/search_title"
         android:icon="@drawable/ic_search"
-        android:showAsAction="collapseActionView|ifRoom"
-        app:actionViewClass="android.widget.SearchView" />
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="collapseActionView|always" />
 </menu>

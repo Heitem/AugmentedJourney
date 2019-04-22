@@ -1,4 +1,4 @@
-package com.heitem.util;
+package com.heitem.utils;
 
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;

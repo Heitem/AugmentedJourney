@@ -2,11 +2,7 @@ package com.heitem.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,29 +14,19 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.text.TextPaint;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.heitem.ar.ArActivity;
 import com.heitem.augmentedjourney.R;
 import com.heitem.data_localization.Place;
 import com.heitem.ui.widget.CameraPreview;
-import com.heitem.util.Log;
-import static com.heitem.util.CameraHelper.cameraAvailable;
-import static com.heitem.util.CameraHelper.getCameraInstance;
-import static com.heitem.util.MediaHelper.getOutputMediaFile;
-import static com.heitem.util.MediaHelper.saveToFile;
 
-import java.io.File;
-import java.util.Calendar;
+import static com.heitem.utils.CameraHelper.cameraAvailable;
+import static com.heitem.utils.CameraHelper.getCameraInstance;
 
 //mport com.blundell.tut.cameraoverlay.FromXML;
 

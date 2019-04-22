@@ -4,13 +4,15 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created by Heitem on 31/05/2015.
  */
 public class GooglePlace implements Comparable, Parcelable {
 
     private String name;
-    private String adress;
+    private String address;
     private Float rating;
     private double latitude;
     private double longitude;
@@ -33,7 +35,7 @@ public class GooglePlace implements Comparable, Parcelable {
 
     public GooglePlace() {
         this.setName("");
-        this.setAdress("");
+        this.setAddress("");
         this.setRating(0f);
         this.setLatitude(0);
         this.setLongitude(0);
@@ -42,9 +44,9 @@ public class GooglePlace implements Comparable, Parcelable {
         this.setImage(null);
     }
 
-    public GooglePlace(String name, String adress, Float rating, double latitude, double longitude, String pr, String icon, Bitmap image) {
+    public GooglePlace(String name, String address, Float rating, double latitude, double longitude, String pr, String icon, Bitmap image) {
         this.setName(name);
-        this.setAdress(adress);
+        this.setAddress(address);
         this.setRating(rating);
         this.setLatitude(latitude);
         this.setLongitude(longitude);
@@ -57,7 +59,7 @@ public class GooglePlace implements Comparable, Parcelable {
     }
     public GooglePlace(Parcel in){
         this.setName(in.readString());
-        this.setAdress(in.readString());
+        this.setAddress(in.readString());
         this.setRating(in.readFloat());
         this.setLatitude(in.readDouble());
         this.setLongitude(in.readDouble());
@@ -74,7 +76,7 @@ public class GooglePlace implements Comparable, Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getName());
-        dest.writeString(getAdress());
+        dest.writeString(getAddress());
         dest.writeFloat(getRating());
         dest.writeDouble(getLatitude());
         dest.writeDouble(getLongitude());
@@ -100,12 +102,12 @@ public class GooglePlace implements Comparable, Parcelable {
         this.name = name;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Float getRating() {

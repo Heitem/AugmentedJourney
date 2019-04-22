@@ -5,12 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,47 +19,39 @@ import android.widget.TextView;
 import com.heitem.augmentedjourney.R;
 import com.heitem.data_localization.GooglePlace;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Heitem on 01/06/2015.
  */
-public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.MyViewHolder> {
+public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ViewHolder> {
 
-    private LayoutInflater inflater;
-    List<GooglePlace> data = Collections.emptyList();
+    private Context context;
+    private List<GooglePlace> data = new ArrayList<>();
 
-    public ResultAdapter(Context context, List<GooglePlace> data){
-        inflater = LayoutInflater.from(context);
+    public ResultAdapter(Context context){
+        this.context = context;
+    }
+
+    public void setData(List<GooglePlace> data) {
         this.data = data;
+        notifyDataSetChanged();
     }
 
-    public ResultAdapter(){
-
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.main_row_layout_result, parent, false));
     }
 
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.main_row_layout_result, parent, false);
-        MyViewHolder holder = new MyViewHolder(view);
-        return holder;
-    }
-
-    @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         GooglePlace current = data.get(position);
-        holder.txt1.setText(current.getName());
-        holder.txt2.setText(current.getAdress());
-        if(current.getRating() != null) holder.rating.setRating(current.getRating());
-        if(current.getImage() != null) holder.img.setImageBitmap(changeCouleur(current.getImage()));
-        else {
-            holder.img.setBackgroundResource(R.color.background_material_dark);
-            holder.rating.setVisibility(View.GONE);
-        }
+        holder.bind(current);
     }
 
-    public Bitmap changeCouleur(Bitmap myBitmap){
+    private Bitmap changeColor(Bitmap myBitmap){
 
         /*int[] pixels = new int[myBitmap.getHeight()*myBitmap.getWidth()];
         myBitmap.getPixels(pixels, 0, myBitmap.getWidth(), 0, 0, myBitmap.getWidth(), myBitmap.getHeight());
@@ -91,19 +81,30 @@ public class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.MyViewHold
         return data.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView img;
-        TextView txt1;
-        TextView txt2;
-        RatingBar rating;
+        private ImageView img;
+        private TextView txt1;
+        private TextView txt2;
+        private RatingBar rating;
 
-        public MyViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
-            img = (ImageView) itemView.findViewById(R.id.image1);
-            txt1 = (TextView) itemView.findViewById(R.id.txt1);
-            txt2 = (TextView) itemView.findViewById(R.id.txt2);
-            rating = (RatingBar) itemView.findViewById(R.id.rating);
+            img = itemView.findViewById(R.id.image1);
+            txt1 = itemView.findViewById(R.id.txt1);
+            txt2 = itemView.findViewById(R.id.txt2);
+            rating = itemView.findViewById(R.id.rating);
+        }
+
+        void bind(GooglePlace place) {
+            txt1.setText(place.getName());
+            txt2.setText(place.getAddress());
+            if(place.getRating() != null) rating.setRating(place.getRating());
+            if(place.getImage() != null) img.setImageBitmap(changeColor(place.getImage()));
+            else {
+                img.setBackgroundResource(R.color.background_material_dark);
+                rating.setVisibility(View.GONE);
+            }
         }
     }
 }
