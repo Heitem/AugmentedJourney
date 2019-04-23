@@ -2,6 +2,7 @@ package com.heitem.augmentedjourney;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,14 +10,16 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.android.volley.VolleyError;
 import com.heitem.adapters.ResultAdapter;
-import com.heitem.data_localization.GPSTracker;
 import com.heitem.data_localization.GooglePlace;
 import com.heitem.networking.NetworkManager;
 import com.heitem.networking.RequestGetJson;
 import com.heitem.utils.Helpers;
+import com.heitem.utils.LocationManager;
 import com.heitem.utils.Log;
 
 import java.util.ArrayList;
@@ -29,12 +32,13 @@ import static com.heitem.utils.Constants.GOOGLE_KEY;
  */
 public class SearchActivity extends AppCompatActivity {
 
-    private GPSTracker gpsTracker;
     private List<GooglePlace> venuesList = new ArrayList<>();
     private ResultAdapter adapter;
-    private RecyclerView rv;
+    private RecyclerView recyclerView;
     private String query;
     private Toolbar toolbar;
+    private ProgressBar progressBar;
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,25 +50,31 @@ public class SearchActivity extends AppCompatActivity {
         setTitle("Search");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        gpsTracker = new GPSTracker(this);
-        rv = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R.id.progressBar);
+
+        recyclerView = findViewById(R.id.recyclerView);
         adapter = new ResultAdapter(this);
-        rv.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rv.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
 
         handleIntent(getIntent());
 
-        loadData();
+        LocationManager.getInstance().setLocationListener(currentLocation -> {
+            SearchActivity.this.currentLocation = currentLocation;
+            loadData();
+        });
+
+        LocationManager.getInstance().configureLocation(this);
     }
 
     private void loadData() {
         String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
-                + gpsTracker.getLatitude() + "," + gpsTracker.getLongitude() + "&language=fr&keyword=" + query
+                + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&language=fr&keyword=" + query
                 + "&radius=50000&key=" + GOOGLE_KEY;
 
-        NetworkManager.getInstance().get(SearchActivity.this, url, new RequestGetJson.OnGetRequestListener() {
+        NetworkManager.getInstance().get(this, url, new RequestGetJson.OnGetRequestListener() {
 
             @Override
             public void onGetRequestSuccess(String response) {
@@ -72,6 +82,7 @@ public class SearchActivity extends AppCompatActivity {
 
                 if (venuesList.size() != 0) {
                     adapter.setData(venuesList);
+                    progressBar.setVisibility(View.GONE);
                 } else {
                     //ll.setVisibility(View.VISIBLE);
                 }

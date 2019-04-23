@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,29 +24,19 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStates;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.heitem.adapters.HomeAdapter;
 import com.heitem.ar.ArActivity;
-import com.heitem.data_localization.GPSTracker;
 import com.heitem.data_localization.GooglePlace;
 import com.heitem.networking.NetworkManager;
 import com.heitem.networking.RequestGetJson;
 import com.heitem.others.DividerItemDecoration;
 import com.heitem.utils.Helpers;
+import com.heitem.utils.LocationManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,8 +44,7 @@ import java.util.List;
 
 import static com.heitem.utils.Constants.GOOGLE_KEY;
 
-
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private LinearLayout cFL;
@@ -63,9 +53,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private RecyclerView recyclerView;
     private GoogleApiClient googleApiClient;
     private List<GooglePlace> venuesList = new ArrayList<>();
-    private GPSTracker gpsTracker;
     private static final int REQUEST_PLACE_PICKER = 1;
     private Toolbar toolbar;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         cFL = findViewById(R.id.connectionFailedLayout);
         cFL.setVisibility(View.GONE);
+        swipeRefreshLayout = findViewById(R.id.srl);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         adapter = new HomeAdapter(this);
@@ -88,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         refresh = findViewById(R.id.refresh);
         refresh.setOnClickListener(v -> {
-            gpsTracker = new GPSTracker(MainActivity.this);
             loadData();
         });
 
@@ -104,63 +95,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
-        //Code pour Setting API Dialog
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-            googleApiClient.connect();
+        swipeRefreshLayout.setOnRefreshListener(this::loadData);
 
-            LocationRequest locationRequest1 = LocationRequest.create();
-            locationRequest1.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest1.setInterval(30 * 1000);
-            locationRequest1.setFastestInterval(5 * 1000);
+        LocationManager.getInstance().showSettingsClientDialog(this);
 
-            LocationRequest locationRequest2 = LocationRequest.create();
-            locationRequest2.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            locationRequest2.setInterval(30 * 1000);
-            locationRequest2.setFastestInterval(5 * 1000);
-            LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest1).addLocationRequest(locationRequest2);
+        LocationManager.getInstance().setLocationListener(currentLocation -> {
+            MainActivity.this.currentLocation = currentLocation;
+            loadData();
+        });
 
-            //**************************
-            builder.setAlwaysShow(true); //this is the key ingredient
-            //**************************
-
-            PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
-            result.setResultCallback(result1 -> {
-                final Status status = result1.getStatus();
-                final LocationSettingsStates state = result1.getLocationSettingsStates();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-                        // All location settings are satisfied. The client can initialize location
-                        // requests here.
-                        break;
-                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                        // Location settings are not satisfied. But could be fixed by showing the user
-                        // a dialog.
-                        try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
-                            status.startResolutionForResult(MainActivity.this, 1000);
-                        } catch (IntentSender.SendIntentException e) {
-                            // Ignore the error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                        // Location settings are not satisfied. However, we have no way to fix the
-                        // settings so we won't show the dialog.
-                        break;
-                }
-            });
-        }
-
-        gpsTracker = new GPSTracker(this);
-
-        loadData();
+        LocationManager.getInstance().configureLocation(this);
     }
 
     private void loadData() {
-        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + gpsTracker.getLatitude() + "," + gpsTracker.getLongitude() + "&language=fr&radius=10000&key=" + GOOGLE_KEY;
+        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + currentLocation.getLatitude() + "," + currentLocation.getLongitude() + "&language=fr&radius=10000&key=" + GOOGLE_KEY;
 
-        NetworkManager.getInstance().get(MainActivity.this, url, new RequestGetJson.OnGetRequestListener() {
+        NetworkManager.getInstance().get(this, url, new RequestGetJson.OnGetRequestListener() {
             @Override
             public void onGetRequestSuccess(String response) {
                 cFL.setVisibility(View.GONE);
@@ -168,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 if (venuesList.size() != 0) {
                     Collections.sort(venuesList);
-                    adapter.setData(venuesList.subList(0, 5));
+                    if (venuesList.size() > 5) adapter.setData(venuesList.subList(0, 5));
+                    else adapter.setData(venuesList);
+                    swipeRefreshLayout.setRefreshing(false);
                 } else {
                     cFL.setVisibility(View.VISIBLE);
                 }
@@ -179,6 +131,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Log.e(TAG, volleyError.networkResponse.toString());
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1000) {
+            if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LocationManager.getInstance().requestLocation(this);
+            } else Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -205,19 +166,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-    }
-
-    //Resultat du Place Picker
+    //Place Picker activity result
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
